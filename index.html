@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #search-bar {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            width: 99%;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #image-container {
+            background-color: #f8f8f8;
+            padding: 20px;
+        }
+        #image-container div {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+            vertical-align: top;
+            border: 1px solid black;
+            transition: transform .2s;
+        }
+        #image-container div:hover {
+        transform: scale(1.1);
+        }
+
+        #image-container div:hover img {
+            cursor: pointer;
+        }
+        #image-container img {
+            width: 200px;
+            height: 200px;
+        }
+        #image-container p {
+            margin: 0;
+            padding: 5px 0;
+            background-color: #35345d;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #000000;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .modal {
+            cursor: pointer;
+        }
+        .modal-content {
+            cursor: default;
+            width: 60%;
+        }
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-content div {
+            background-color: #35345d;
+            color: #ffffff;
+        }
+        .modal-content img {
+            max-width: 40%;
+            max-height: 40%;
+        }
+        #exitButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background-color: #333; /* Dark gray background */
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 20px; /* Increase the font size to make the cross bigger */
+            line-height: 1; /* Center the cross vertically */
+            text-align: center; /* Center the cross horizontally */
+        }
+    </style>
+</head>
+<body>
+    <h1>Butikker på Tangen Senter</h1>
+    <hr>
+    <input type="text" id="search-bar" placeholder="Søk etter butikk..." oninput="filterImages()">
+    <hr>
+    <div id="image-container"></div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <button id="exitButton">&times;</button>
+            <div id="modal-image-container"></div>
+        </div>
+    </div>
+
+    <script>
+        var images = [
+            { src: 'Assets\\imgs\\tangen\\b-young.png', tags: ['B-Young', 'b young'] },
+            { src: 'Assets\\imgs\\tangen\\baker-nordby.png', tags: ['Baker Nordby'] },
+            { src: 'Assets\\imgs\\tangen\\energihuset.png', tags: ['Energihuset'] },
+            { src: 'Assets\\imgs\\tangen\\eurosko.png', tags: ['Eurosko'] },
+            { src: 'Assets\\imgs\\tangen\\hansen-&-dysvik.png', tags: ['Hansen og Dysvik', 'hansen & dysvik'] },
+            { src: 'Assets\\imgs\\tangen\\interoptikk.png', tags: ['Interoptikk'] },
+            { src: 'Assets\\imgs\\tangen\\jernia.png', tags: ['Jernia', 'Jærnia'] },
+            { src: 'Assets\\imgs\\tangen\\kitche-n.png', tags: ["Kitch'n", 'Kitchen', 'Kitchn'] },
+            { src: 'Assets\\imgs\\tangen\\match.png', tags: ['Match'] },
+            { src: 'Assets\\imgs\\tangen\\mester-gronn.png', tags: ['Mester Grønn', 'Mestergrønn'] },
+            { src: 'Assets\\imgs\\tangen\\noras-verden.png', tags: ['Noras Verden', 'norasverden'] },
+            { src: 'Assets\\imgs\\tangen\\norli.png', tags: ['Norli'] },
+            { src: 'Assets\\imgs\\tangen\\princess.png', tags: ['Princess'] },
+            { src: 'Assets\\imgs\\tangen\\røtter.png', tags: ['Røtter', 'rotter'] },
+            { src: 'Assets\\imgs\\tangen\\rustikk.png', tags: ['Rustikk'] },
+            { src: 'Assets\\imgs\\tangen\\tangen-dyrebutikk.png', tags: ['Tangen dyrebutikk', 'tangendyrebutikk'] },
+            { src: 'Assets\\imgs\\tangen\\vita.png', tags: ['Vita'] },
+            { src: 'Assets\\imgs\\tangen\\vitusapotek.png', tags: ['Vitusapotek', 'vitus apotek'] },
+            { src: 'Assets\\imgs\\tangen\\yes-vi-leker.png', tags: ['Yes vi leker!', 'yesvileker'] }
+        ];
+
+        function filterImages() {
+            var searchTerm = document.getElementById('search-bar').value.toLowerCase();
+            var filteredImages = images.filter(image => 
+                image.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+            );
+            displayImages(filteredImages);
+        }
+
+        function displayImages(images) {
+            var imageContainer = document.getElementById('image-container');
+            imageContainer.innerHTML = '';
+            var currentScaledDiv = null; // Keep track of the currently scaled div
+            for (var image of images) {
+                var divElement = document.createElement('div');
+                var pElement = document.createElement('p');
+                var imgElement = document.createElement('img');
+
+                divElement.style.display = 'inline-block';
+                divElement.style.margin = '10px';
+                divElement.style.textAlign = 'center';
+                divElement.style.verticalAlign = 'top';
+                divElement.style.border = '1px solid black';
+                imgElement.src = image.src;
+                divElement.onclick = function() {
+                    var modal = document.getElementById("myModal");
+                    var modalImageContainer = document.getElementById("modal-image-container");
+                    var clone = this.cloneNode(true);
+                    clone.style.transform = 'scale(1.5)';
+                    modalImageContainer.appendChild(clone);
+                    modal.style.display = "block";
+
+                    var span = document.getElementsByClassName("close")[0];
+                    span.onclick = function() {
+                        modal.style.display = "none";
+                        modalImageContainer.innerHTML = '';
+                    }
+                };
+                pElement.textContent = image.tags[0];
+
+                divElement.appendChild(pElement);
+                divElement.appendChild(imgElement);
+                imageContainer.appendChild(divElement);
+            }
+        }
+
+        // Display all images at the start
+        displayImages(images);
+
+        var modal = document.getElementById("myModal");
+        var span = document.getElementsByClassName("close")[0];
+        var modalImageContainer = document.getElementById("modal-image-container");
+
+        span.addEventListener('click', function() {
+            modal.style.display = "none";
+            modalImageContainer.innerHTML = '';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                modalImageContainer.innerHTML = '';
+            }
+        });
+        var exitButton = document.getElementById("exitButton");
+
+        exitButton.onclick = function() {
+            modal.style.display = "none";
+            modalImageContainer.innerHTML = '';
+        }
+</script> 
+</body>
+</html>
